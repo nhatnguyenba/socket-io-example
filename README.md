@@ -1,3 +1,7 @@
+## Ứng dụng chat sử dụng SocketIO
+<img src="images/chat_app_demo.gif" alt="" width="100%"/>
+
+
 ## SocketIO là gì?
 **Socket.IO** là thư viện giúp xây dựng **ứng dụng real-time** (hoạt động theo thời gian thực) giữa client (trình duyệt, app) và server. Nó cho phép hai bên trao đổi dữ liệu **tức thì** mà không cần client phải liên tục gửi yêu cầu (request) như cách HTTP truyền thống.
 
