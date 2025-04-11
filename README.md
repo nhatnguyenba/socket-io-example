@@ -79,13 +79,10 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 
+// Khởi tạo Express và HTTP server
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*" // Cho phép mọi client kết nối
-  }
-});
+const io = new Server(server);
 
 // Xử lý kết nối
 io.on('connection', (socket) => {
@@ -112,55 +109,53 @@ server.listen(PORT, () => {
 });
 ```
 
-### Android Client (Java)
-```java
-public class MainActivity extends AppCompatActivity {
-private Socket mSocket;
-private EditText edtMessage;
-private TextView tvMessages;
+### Android Client (Kotlin)
+```kotlin
+class MainActivity : AppCompatActivity() {
+    private lateinit var mSocket: Socket
+    private lateinit var edtMessage: EditText
+    private lateinit var tvMessages: TextView
+    private lateinit var btnSend: Button
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-        edtMessage = findViewById(R.id.edtMessage);
-        tvMessages = findViewById(R.id.tvMessages);
-        Button btnSend = findViewById(R.id.btnSend);
+        edtMessage = findViewById(R.id.edtMessage)
+        tvMessages = findViewById(R.id.tvMessages)
+        btnSend = findViewById(R.id.btnSend)
 
         // Kết nối đến server
         try {
-            mSocket = IO.socket("http://10.0.2.2:3000"); // Dùng 10.0.2.2 cho emulator
-            mSocket.connect();
-        } catch (Exception e) {
-            Log.e("SocketIO", "Connection error", e);
+            mSocket = IO.socket("http://10.0.2.2:3000") // Dùng 10.0.2.2 cho emulator
+            mSocket.connect()
+        } catch (e: Exception) {
+            Log.e("SocketIO", "Connection error", e)
         }
 
         // Lắng nghe sự kiện 'message'
-        mSocket.on("message", new Emitter.Listener() {
-            @Override
-            public void call(Object... args) {
-                runOnUiThread(() -> {
-                    String message = (String) args[0];
-                    tvMessages.append(message + "\n");
-                });
+        mSocket.on("message") { args ->
+            runOnUiThread {
+                val message = args[0] as String
+                tvMessages.append("$message\n")
             }
-        });
+        }
 
         // Gửi tin nhắn
-        btnSend.setOnClickListener(v -> {
-            String message = edtMessage.getText().toString();
-            if (!message.isEmpty()) {
-                mSocket.emit("message", message);
-                edtMessage.setText("");
+        btnSend.setOnClickListener {
+            val message = edtMessage.text.toString()
+            if (message.isNotEmpty()) {
+                mSocket.emit("message", message)
+                edtMessage.text.clear()
             }
-        });
+        }
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mSocket.disconnect(); // Ngắt kết nối khi hủy Activity
+    override fun onDestroy() {
+        super.onDestroy()
+        if (::mSocket.isInitialized) {
+            mSocket.disconnect() // Ngắt kết nối khi hủy Activity
+        }
     }
 }
 
